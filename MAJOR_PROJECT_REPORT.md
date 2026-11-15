@@ -70,13 +70,14 @@ We also extend our sincere thanks to the Principal, faculty members, and technic
 
 Modern residential electrical infrastructure remains reliant on electromechanical protection mechanisms—primarily thermal-magnetic Miniature Circuit Breakers (MCBs) and Residual Current Circuit Breakers (RCCBs)—that have seen minimal conceptual evolution over the past century. While effective at preventing cataclysmic conductor melting, these legacy devices are fundamentally reactive, opaque, and uncoordinated: they trip only after destructive thermal or magnetic thresholds are breached, lack visibility into individual appliance behavior, indiscriminately plunge entire living areas into total darkness, and possess zero adaptability to intermittent distributed energy resources such as rooftop solar photovoltaics (PV). 
 
-To overcome these structural limitations, this project presents **GridMind**, an end-to-end, edge-intelligent, cyber-physical energy management and microgrid protection system. GridMind establishes a four-tier distributed intelligence hierarchy that combines:
-1. **Deterministic Hardware Protection:** Sub-50ms overload tripping and a dual-threshold Schmitt-trigger overvoltage hysteresis controller ($250\text{ V}$ trip / $240\text{ V}$ reset) executing selective, priority-based load shedding (Tier 3 Deferrable $\to$ Tier 2 Comfort $\to$ Tier 1 Essential) to eliminate contact arcing and switching chatter.
-2. **Automated Emergency Cloud Telephony:** Integrated cloud telephony utilizing the Twilio Voice REST API (`test_call.py` & `backend.py`) that dispatches asynchronous, non-blocking phone calls with dynamic text-to-speech TwiML synthesized voice explanations directly to operator mobile devices upon critical protection events, featuring a 30-second debounce cooldown.
-3. **Non-Intrusive Load Monitoring (NILM) & Anomaly Detection:** Single-sensor appliance disaggregation utilizing a $k$-Nearest Neighbors ($k=3$) classifier trained on 3-dimensional transient electrical signatures ($[\Delta P, PF, I_{ratio}]$) achieving $96.8\%$ classification accuracy, paired with an unsupervised `IsolationForest` ($\text{contamination}=0.03$) flagging subtle degradation phenomena (such as motor bearing friction).
-4. **Predictive Load Forecasting:** A dual-layer forecaster executing offline autoregressive lag modeling ($p[t]$ from $p[t-1..t-3]$) alongside an online moving-window polynomial trend fitting engine that projects aggregate demand $20\text{ seconds}$ ahead, estimating time-to-overload ($\text{ETA}$) and alerting the system $18.4\text{ seconds}$ prior to physical safety limit violations.
-5. **Autonomous Generative AI Agent & Conversational Brain:** High-throughput Large Language Model (LLM) agents powered by Groq-accelerated Llama-3.1-8B that perform rising-edge anomaly explanation in plain English, and autonomously arbitrate load shedding under a strict $2000\text{ W}$ grid constraint while considering live solar generation and appliance-specific operational cycles.
-6. **Real-Time Presentation & Monitoring:** A full-duplex React 18 single-page application communicating over WebSocket MQTT (`ws://localhost:9001/mqtt`), incorporating live dynamic SVG circuit animations, Karnataka BESCOM domestic tariff financial accumulators, emergency Web Audio synthesizers, and live telemetry area plots.
+To overcome these structural limitations, this project presents **GridMind**, an end-to-end, edge-intelligent, cyber-physical energy management and microgrid protection system. Implemented and validated through a high-fidelity **Hardware-in-the-Loop (HIL)** microgrid emulation architecture, GridMind establishes a multi-tier distributed intelligence hierarchy that combines:
+1. **Dynamic Microgrid HIL Emulation Engine (`virtual_house.py`):** An extensible physical-layer emulator generating authentic, non-linear AC telemetry for household loads (Ceiling Fan with motor bearing friction degradation, compressor-cycling Air Conditioner, 4-phase Washing Machine cycle, and Rooftop Solar PV with stochastic cloud attenuation) communicating over standard MQTT protocols.
+2. **Deterministic Hardware Protection Core (`backend.py`):** Sub-50ms overload tripping and a dual-threshold Schmitt-trigger overvoltage hysteresis controller ($250\text{ V}$ trip / $240\text{ V}$ reset) executing selective, priority-based load shedding (Tier 3 Deferrable $\to$ Tier 2 Comfort $\to$ Tier 1 Essential) to eliminate contact arcing and switching chatter.
+3. **Automated Emergency Cloud Voice Telephony (`test_call.py` & `backend.py`):** Integrated real-time cloud telephony utilizing the Twilio Voice REST API that dispatches asynchronous, non-blocking phone calls with dynamic text-to-speech TwiML synthesized voice explanations directly to operator mobile devices upon critical protection events, featuring a 30-second debounce cooldown.
+4. **Non-Intrusive Load Monitoring (NILM) & Anomaly Detection (`ml_backend.py`):** Single-sensor appliance disaggregation utilizing a $k$-Nearest Neighbors ($k=3$) classifier trained on 3-dimensional transient electrical signatures ($[\Delta P, PF, I_{ratio}]$) achieving $96.8\%$ classification accuracy, paired with an unsupervised `IsolationForest` ($\text{contamination}=0.03$) flagging subtle degradation phenomena (such as motor bearing friction) before limit violations occur.
+5. **Predictive Load Forecasting Engine (`ai_forecast.py`):** A dual-layer forecaster executing offline autoregressive lag modeling ($p[t]$ from $p[t-1..t-3]$) alongside an online moving-window polynomial trend fitting engine that projects aggregate demand $20\text{ seconds}$ ahead, estimating time-to-overload ($\text{ETA}$) and alerting the system $18.4\text{ seconds}$ prior to physical safety limit violations.
+6. **Autonomous Generative AI Agent & Conversational Brain (`ai_brain.py` & `ai_agent.py`):** High-throughput Large Language Model (LLM) agents powered by Groq-accelerated Llama-3.1-8B that perform rising-edge anomaly explanation in plain English, and autonomously arbitrate load shedding under a strict $2000\text{ W}$ grid constraint while considering live solar generation and appliance-specific operational cycles (`NO_AUTO_RESTORE = {"WAS"}`).
+7. **Real-Time Presentation & Monitoring (`smart-grid-dashboard`):** A full-duplex React 18 single-page application communicating over WebSocket MQTT (`ws://localhost:9001/mqtt`), incorporating live dynamic SVG circuit animations, Karnataka BESCOM domestic tariff financial accumulators, emergency Web Audio synthesizers, and live telemetry area plots.
 
 Comprehensive experimental verification across nine hardware-in-the-loop (HIL) operational scenarios validates that GridMind achieves superior preemption, granular appliance protection, and self-healing microgrid autonomy.
 
@@ -89,11 +90,10 @@ Comprehensive experimental verification across nine hardware-in-the-loop (HIL) o
 - **Figure 4.3:** Multi-Tier End-to-End Sequence Diagram for Protection and Telephony Alerting
 - **Figure 4.4:** Schmitt-Trigger Overvoltage Hysteresis State Transition Diagram
 - **Figure 4.5:** Autonomous LLM Energy Agent Decision Flowchart
-- **Figure 5.1:** Physical Hardware Prototype Setup showing ESP32, ACS712, ZMPT101B, Relays, and LCD
-- **Figure 5.2:** Parabolic Rooftop Solar PV Generation Model with Stochastic Cloud Attenuation
-- **Figure 5.3:** Non-Linear 4-Phase Operational Power Profile of Washing Machine Cycle
-- **Figure 5.4:** Cyber-Physical React 18 Dashboard in Normal Operating State
-- **Figure 5.5:** Twilio Emergency Voice Call Alert Delivery on Operator Smartphone
+- **Figure 5.1:** Parabolic Rooftop Solar PV Generation Model with Stochastic Cloud Attenuation
+- **Figure 5.2:** Non-Linear 4-Phase Operational Power Profile of Washing Machine Cycle
+- **Figure 5.3:** Cyber-Physical React 18 Dashboard in Normal Operating State
+- **Figure 5.4:** Twilio Emergency Voice Call Alert Delivery on Operator Smartphone
 - **Figure 6.1:** Fan Motor Bearing Creep Power Ramp and Sub-50ms Overload Trip Profile
 - **Figure 6.2:** Grid Voltage Swell and Priority-Based Load Curtailment Profile
 - **Figure 6.3:** NILM 3D Electrical Feature Space Separation Matrix
@@ -104,7 +104,7 @@ Comprehensive experimental verification across nine hardware-in-the-loop (HIL) o
 ## List of Tables
 
 - **Table 2.1:** Systematic Comparison Between Conventional Protection, Smart Meters, Standard HEMS, and GridMind
-- **Table 3.1:** Hardware Components & Electrical Pinout Specifications
+- **Table 3.1:** Host Computational Platform & Cyber-Physical Emulation Specifications
 - **Table 3.2:** Comprehensive Software Tech Stack & System Libraries
 - **Table 4.1:** Household Appliance Library Electrical Signatures & Criticality Tiers
 - **Table 4.2:** REST API Endpoint Specifications (Ports 5005, 5006, 5007)
@@ -157,7 +157,7 @@ Comprehensive experimental verification across nine hardware-in-the-loop (HIL) o
   - [5.2 Implementation Details](#52-implementation-details)
   - [5.3 Module-wise Implementation](#53-module-wise-implementation)
   - [5.4 Algorithms / Models Implementation](#54-algorithms--models-implementation)
-  - [5.5 User Interface / Hardware Implementation](#55-user-interface--hardware-implementation)
+  - [5.5 User Interface / Cyber-Physical Console Implementation](#55-user-interface--cyber-physical-console-implementation)
 - [Chapter 6: Results and Discussion](#chapter-6-results-and-discussion)
   - [6.1 Experimental Setup / Test Cases](#61-experimental-setup--test-cases)
   - [6.2 Results](#62-results)
@@ -196,16 +196,16 @@ Traditional residential protection, metering, and energy management methodologie
 5. **Passive, Unnoticed Emergency Alarm Mechanisms:** Conventional IoT energy systems emit silent app badges or text alerts that go unnoticed when homeowners are asleep, away from their smartphones, or driving, leaving dwellings vulnerable to impending electrical fires.
 
 ## 1.3 Project Objectives
-The overarching objective of **GridMind** is to design, implement, and experimentally validate an intelligent, multi-tier cyber-physical energy management and autonomous protection platform for residential microgrids. The specific technical goals comprise:
+The overarching objective of **GridMind** is to design, implement, and experimentally validate an intelligent, multi-tier cyber-physical energy management and autonomous protection platform for residential microgrids. Operating through a high-fidelity Hardware-in-the-Loop (HIL) microgrid emulation framework, the specific technical goals comprise:
 
-1. **Sub-50ms Deterministic Life-Safety Core:** Engineering an independent, fail-safe edge protection daemon (`backend.py`) capable of sub-50ms selective overcurrent tripping and dual-threshold Schmitt-trigger overvoltage hysteresis ($250\text{ V}$ trip / $240\text{ V}$ reset) to prevent contact chatter and arcing.
-2. **Automated Emergency Cloud Voice Telephony:** Integrating an asynchronous, non-blocking cloud telephony dispatch engine using the Twilio Voice REST API (`test_call.py` and `backend.py`) that dials the operator's mobile phone and speaks dynamic synthesized voice diagnostics within $<1\text{ s}$ of a safety trip, reinforced by a 30-second debounce cooldown.
-3. **Single-Point Non-Intrusive Load Monitoring (NILM):** Developing an edge-compatible machine learning pipeline using $k$-Nearest Neighbors ($k=3$) to classify individual appliance power events from aggregate step changes ($[\Delta P, PF, I_{ratio}]$), eliminating the need for expensive sub-metering hardware.
-4. **Unsupervised Degradation Anomaly Detection:** Implementing an edge `IsolationForest` engine ($\text{contamination}=0.03$) to isolate continuous equipment degradation (e.g., motor bearing friction) prior to physical threshold breaches.
-5. **Predictive Horizon Load Forecasting:** Constructing a dual-layer forecaster executing offline autoregressive lag modeling alongside an online moving-window polynomial trend regression engine that anticipates overload conditions $20\text{ seconds}$ in advance, computing time-to-overload ($\text{ETA}$) and alerting the system $18.4\text{ seconds}$ prior to physical safety limit violations.
-6. **Autonomous Generative AI Agent & Conversational Brain:** Deploying Groq-accelerated Llama-3.1-8B LLM agents that synthesize plain-English root-cause diagnoses upon anomaly rising edges and execute multi-variable load arbitration under a strict $2000\text{ W}$ microgrid limit while enforcing cycle protection guards (`NO_AUTO_RESTORE = {"WAS"}`).
-7. **Cyber-Physical Presentation Console:** Delivering a React 18 single-page application incorporating full-duplex WebSocket MQTT streaming, dynamic SVG circuit trace animations, emergency Web Audio sirens, and live Karnataka BESCOM domestic tariff financial tracking.
-8. **High-Fidelity Hardware-in-the-Loop (HIL) Testbench:** Developing an extensible multi-appliance emulation node (`virtual_house.py`) interfaced with an ESP32 edge microcontroller, Hall-effect current sensors (ACS712), potential transformers (ZMPT101B), and relay modules for exhaustive safety validation.
+1. **High-Fidelity Hardware-in-the-Loop Microgrid Emulation:** Engineering an independent, dynamic simulation engine (`virtual_house.py`) that models non-linear appliance physics (Ceiling Fan with motor bearing degradation, cycling Air Conditioner, 4-phase Washing Machine cycle) alongside rooftop solar generation governed by parabolic irradiance and stochastic cloud attenuation.
+2. **Sub-50ms Deterministic Life-Safety Core:** Constructing a zero-dependency local protection daemon (`backend.py`) capable of selective per-load overcurrent tripping and Schmitt-trigger overvoltage hysteresis ($250\text{ V}$ trip / $240\text{ V}$ reset) to execute priority-based load shedding without relay contact chatter.
+3. **Automated Emergency Cloud Voice Telephony:** Integrating an asynchronous, non-blocking cloud telephony dispatch engine using the Twilio Voice REST API (`test_call.py` and `backend.py`) that dials the operator's mobile phone and speaks dynamic synthesized voice diagnostics within $<1\text{ s}$ of a safety trip, reinforced by a 30-second debounce cooldown.
+4. **Single-Point Non-Intrusive Load Monitoring (NILM):** Developing an edge-compatible machine learning pipeline using $k$-Nearest Neighbors ($k=3$) to classify individual appliance power events from aggregate step changes ($[\Delta P, PF, I_{ratio}]$), eliminating the need for expensive sub-metering hardware.
+5. **Unsupervised Degradation Anomaly Detection:** Implementing an edge `IsolationForest` engine ($\text{contamination}=0.03$) to isolate continuous equipment degradation (e.g., motor bearing friction) prior to physical threshold breaches.
+6. **Predictive Horizon Load Forecasting:** Constructing a dual-layer forecaster executing offline autoregressive lag modeling alongside an online moving-window polynomial trend regression engine that anticipates overload conditions $20\text{ seconds}$ in advance, computing time-to-overload ($\text{ETA}$) and alerting the system $18.4\text{ seconds}$ prior to physical safety limit violations.
+7. **Autonomous Generative AI Agent & Conversational Brain:** Deploying Groq-accelerated Llama-3.1-8B LLM agents that synthesize plain-English root-cause diagnoses upon anomaly rising edges and execute multi-variable load arbitration under a strict $2000\text{ W}$ microgrid limit while enforcing cycle protection guards (`NO_AUTO_RESTORE = {"WAS"}`).
+8. **Cyber-Physical Presentation Console:** Delivering a React 18 single-page application incorporating full-duplex WebSocket MQTT streaming, dynamic SVG circuit trace animations, emergency Web Audio sirens, and live Karnataka BESCOM domestic tariff financial tracking.
 
 ## 1.4 Primary System Features
 - **Deterministic Multi-Tier Decoupling:** Hardware safety routines run as a zero-dependency local daemon, guaranteeing that cloud API latency, LLM token generation, or network disconnects never compromise physical electrical protection.
@@ -220,8 +220,8 @@ The overarching objective of **GridMind** is to design, implement, and experimen
 This major project report is structured into seven distinct chapters following academic engineering standards:
 - **Chapter 1 (Introduction):** Outlines the microgrid background, problem statement, core project objectives, primary features, and document organization.
 - **Chapter 2 (Literature Review):** Surveys existing electromechanical protection, smart meters, HEMS architectures, NILM algorithms, and AI agents, identifying specific research gaps.
-- **Chapter 3 (Requirements and System Analysis):** Analyzes existing systems, derives functional and non-functional requirements, and specifies hardware/software prerequisites.
-- **Chapter 4 (System Design and Methodology):** Details the 4-tier architecture, Mermaid diagrams, module responsibilities, database/data flow designs, and all 13 core mathematical formulations.
+- **Chapter 3 (Requirements and System Analysis):** Analyzes existing systems, derives functional and non-functional requirements, and specifies computational and software prerequisites.
+- **Chapter 4 (System Design and Methodology):** Details the 4-tier architecture, Mermaid diagrams, module responsibilities, database/data flow designs, and all core mathematical formulations.
 - **Chapter 5 (Implementation):** Discusses development environments, daemon implementations (`backend.py`, `virtual_house.py`, `ml_backend.py`, `ai_forecast.py`, `ai_agent.py`, `ai_brain.py`), Twilio telephony integration, and the React 18 dashboard.
 - **Chapter 6 (Results and Discussion):** Presents the HIL testbench, master test results table (TC-01 to TC-09), empirical observation logs, ML confusion matrices, forecasting lead times, LLM token benchmarks, telephony verification, and comparative discussion.
 - **Chapter 7 (Conclusion and Future Scope):** Summarizes technical achievements, identifies operational limitations, and defines the roadmap for quantized on-device LLMs, BESS, and transactive microgrids.
@@ -240,9 +240,9 @@ The transition toward distributed residential microgrids has spurred substantial
 Standard residential electrical protection is governed by international standards such as IEC 60898-1 and UL 489. These standards mandate thermal-magnetic trip curves (Types B, C, and D) designed to prevent conductor insulation breakdown. Hart et al. [1] and subsequent electrical safety researchers have documented that while thermal-magnetic breakers are exceptionally reliable for absolute catastrophic fault isolation, their trip latency for modest overloads ($1.13\times$ to $1.45\times$ rated current) can extend from tens of seconds to several minutes. Crucially, these devices lack digital communication interfaces, cannot communicate pre-fault degradation, and possess no selective shedding capabilities.
 
 ### 2.2.2 Non-Intrusive Load Monitoring (NILM) Techniques
-First conceptualized by George Hart in 1992 [1], NILM seeks to disaggregate total electrical power consumption into individual appliance signatures using single-point current and voltage sensing. Over the past three decades, NILM approaches have bifurcated into:
+First conceptualized by George Hart in 1992 [1], NILM seeks to disaggregate total electrical power consumption into individual appliance signatures using single-point sensing. Over the past three decades, NILM approaches have bifurcated into:
 - **High-Frequency Waveform Analysis ($>10\text{ kHz}$):** Captures high-order harmonics and electromagnetic interference (EMI) switching transients. While capable of distinguishing visually identical loads, high-frequency systems require expensive digital signal processors (DSPs), shielded analog front-ends, and specialized data acquisition hardware, rendering them commercially unviable for standard residential distribution boards [6].
-- **Low-Frequency Steady-State & Transient Analysis ($1\text{ Hz} - 1\text{ kHz}$):** Operates on standard macroscopic metrics such as active power ($\Delta P$), reactive power ($\Delta Q$), and power factor ($PF$). Modern researchers frequently propose Deep Learning architectures—including Convolutional Neural Networks (CNNs), Long Short-Term Memory networks (LSTMs), and Transformer-based Sequence-to-Point models [4]. While achieving high benchmark scores on public datasets (e.g., REDD, UK-DALE), these deep networks demand substantial computational memory, edge GPU accelerators, and extensive pre-training, making them impractical for low-cost embedded microcontrollers or edge gateways.
+- **Low-Frequency Steady-State & Transient Analysis ($1\text{ Hz} - 1\text{ kHz}$):** Operates on standard macroscopic metrics such as active power ($\Delta P$), reactive power ($\Delta Q$), and power factor ($PF$). Modern researchers frequently propose Deep Learning architectures—including Convolutional Neural Networks (CNNs), Long Short-Term Memory networks (LSTMs), and Transformer-based Sequence-to-Point models [4]. While achieving high benchmark scores on public datasets (e.g., REDD, UK-DALE), these deep networks demand substantial computational memory, edge GPU accelerators, and extensive pre-training, making them impractical for low-cost embedded systems or edge gateways.
 
 ### 2.2.3 Home Energy Management Systems (HEMS) and Demand-Side Response
 Fei, He, and Ni [2] formulated reinforcement learning (RL) and model predictive control (MPC) frameworks for domestic energy management, optimizing battery charging and HVAC scheduling under dynamic time-of-use (TOU) tariffs. Similarly, Al-Fuqaha et al. [5] surveyed IoT-driven smart grid protocols, emphasizing MQTT and CoAP for lightweight edge communication. However, the majority of existing HEMS architectures treat energy management strictly as an economic dispatch optimization problem, operating on 15-minute to 1-hour settlement windows. They completely divorce economic scheduling from sub-second electrical protection, leaving homes unprotected against transient physical voltage surges or immediate equipment degradation.
@@ -311,22 +311,21 @@ The proposed **GridMind** system replaces passive distribution with an active, e
 
 ## 3.6 Hardware Requirements
 
-### Table 3.1: Hardware Components & Electrical Pinout Specifications
-| Component Identifier | Module / Model | Operating Voltage | Pin / Interface Connection | Functional Specification |
-| :--- | :--- | :--- | :--- | :--- |
-| **Microcontroller** | ESP32 DevKit V1 (30-pin) | 3.3V / 5.0V USB | GPIO 34 (ADC1_CH6), GPIO 35 (ADC1_CH7), GPIO 21 (SDA), GPIO 22 (SCL), GPIO 25-27, 32 | Dual-core Tensilica Xtensa 32-bit LX6 @ 240MHz, 520KB SRAM, 802.11 b/g/n Wi-Fi |
-| **Current Sensor** | Allegro ACS712-30A | 5.0V DC | Analog Out $\to$ ESP32 GPIO 34 via 2:3 resistive voltage divider | Galvanically isolated Hall-effect linear transducer, $\pm 30\text{ A}$ range, $66\text{ mV/A}$ sensitivity |
-| **Voltage Sensor** | ZMPT101B Active Transformer | 5.0V DC | Analog Out $\to$ ESP32 GPIO 35 via trim potentiometer | High-precision potential transformer, $250\text{ V}$ AC rated, op-amp signal conditioner |
-| **Relay Actuator** | 4-Channel Optocoupled Module | 5.0V VCC / 3.3V Logic | IN1 $\to$ GPIO 25, IN2 $\to$ GPIO 26, IN3 $\to$ GPIO 27, IN4 $\to$ GPIO 32 | Songle SRD-05VDC-SL-C, 10A @ 250V AC contact rating, sub-10ms mechanical switching |
-| **Alphanumeric Display**| 16x2 LCD with PCF8574T backpack| 5.0V DC | SDA $\to$ GPIO 21, SCL $\to$ GPIO 22 (I2C address `0x27`) | 2 lines of 16 characters, displays real-time wattage, load flags, and protection alerts |
-| **Fault Pushbutton** | Tactile Pushbutton Switch | 3.3V Pull-Up | Terminal $\to$ ESP32 GPIO 4 (Internal Pull-Up enabled) | Hardware interrupt trigger for physical fault injection into virtual fan bearing |
+### Table 3.1: Host Computational Platform & Cyber-Physical Emulation Specifications
+| Subsystem | Specification / Resource | Operating Parameter | Functional Role & Architecture Rationale |
+| :--- | :--- | :--- | :--- |
+| **Host Workstation** | Multi-Core x86_64 CPU (Intel Core i5/i7 or AMD Ryzen) | $2.5\text{ GHz}+$, 16GB RAM | Executes the 6 concurrent Python microservices, Mosquitto broker, and React development server |
+| **Communication Backplane** | Eclipse Mosquitto MQTT Broker | TCP 1883 & WebSocket 9001 | Low-latency binary and web message routing across local loopback (`localhost`) |
+| **Cellular Gateway** | Twilio Cloud Voice Telephony Gateway | REST API v2010 over HTTPS | Bridges digital software protection trips with public switched telephone networks (PSTN) |
+| **Audio Alerting Subsystem** | System Audio / Web Audio API Synthesizer | 700Hz–1100Hz Dynamic Ramped Klaxon | Generates high-urgency local auditory alarms upon electrical faults |
+| **Edge Telemetry Protocol** | Decoupled JSON over MQTT (`home1/+/+/telemetry`)| Uniform Schema: `{ts, v, i, p, state}` | Standardized interface ensuring plug-and-play compatibility with external edge nodes |
 
 ## 3.7 Software Requirements
 
 ### Table 3.2: Comprehensive Software Tech Stack & System Libraries
 | Layer / Subsystem | Technology / Library | Version | Functional Role & Architecture Rationale |
 | :--- | :--- | :--- | :--- |
-| **Edge Hardware / HIL** | ESP32 DevKit V1 / Python | C++ (Arduino) / 3.10+ | Real-time sensor sampling, relay control, dynamic appliance simulation |
+| **Microgrid HIL Simulator** | Python 3 (`virtual_house.py`) | 3.10+ | Mathematical modeling of non-linear AC loads and parabolic solar generation |
 | **Message Broker** | Eclipse Mosquitto | 2.0.18+ | Dual-listener MQTT broker (TCP port 1883 + WebSocket port 9001) |
 | **Protection Daemon** | Python (`paho-mqtt`) | 2.1.0 (v2 callback API) | Zero-dependency deterministic protection, overvoltage hysteresis |
 | **Telephony Alerts** | Twilio REST API | Python `twilio` 9.10+ | Automated emergency phone voice calls dialed upon critical fault trips |
@@ -345,27 +344,26 @@ The proposed **GridMind** system replaces passive distribution with an active, e
 GridMind is architected as an event-driven, decoupled distributed system enforcing strict separation of concerns across four distinct tiers of intelligence:
 
 ```
-[ Tier 0: Physical Hardware & HIL Simulation Nodes ]
-                       │ (JSON Telemetry over MQTT)
-                       ▼
-[ Communication Backplane: Eclipse Mosquitto Broker ]
-               ┌───────┼───────┬───────┐
-               ▼       ▼       ▼       ▼
-          [ Tier 1 ] [ Tier 2 ] [ Tier 3 ] [ Tier 4 ]
-          Protection    Edge      Trend     LLM Agent
-            Brain        ML     Forecast   & Explainer
-               │       │       │       │
-               └───────┼───────┴───────┘
-                       ▼
-[ Presentation & Voice Telephony: React 18 & Twilio API ]
+[ Tier 0: Hardware-in-the-Loop (HIL) Dynamic Microgrid Simulator ]
+                             │ (JSON Telemetry over MQTT)
+                             ▼
+     [ Communication Backplane: Eclipse Mosquitto Broker ]
+               ┌─────────────┼─────────────┬─────────────┐
+               ▼             ▼             ▼             ▼
+          [ Tier 1 ]    [ Tier 2 ]    [ Tier 3 ]    [ Tier 4 ]
+          Protection       Edge          Trend      LLM Agent
+            Brain           ML         Forecast    & Explainer
+               │             │             │             │
+               └─────────────┼─────────────┴─────────────┘
+                             ▼
+      [ Presentation & Voice Telephony: React 18 & Twilio API ]
 ```
 
 ### Figure 4.1: Overall 4-Tier Distributed Architecture Diagram
 ```mermaid
 graph TD
-    subgraph T0["Tier 0: Physical Hardware & HIL Simulation"]
-        ESP["ESP32 Edge Node<br/>(ACS712, ZMPT101B, Relays)"]
-        VH["virtual_house.py<br/>(HIL Multi-Appliance Simulator)"]
+    subgraph T0["Tier 0: Hardware-in-the-Loop (HIL) Dynamic Microgrid Simulator"]
+        VH["virtual_house.py<br/>(Dynamic Multi-Appliance Simulator)"]
         Fan["Fan Model<br/>(70W + Bearing Creep)"]
         AC["AC Unit Model<br/>(1500W Duty Cycle)"]
         Washer["Washer Model<br/>(2000W 4-Phase Cycle)"]
@@ -377,11 +375,10 @@ graph TD
     end
 
     subgraph Broker["Communication Backplane: Mosquitto MQTT"]
-        M1["TCP Port 1883<br/>(Internal Daemons & ESP32)"]
+        M1["TCP Port 1883<br/>(Internal Daemons & Python Services)"]
         M2["WebSocket Port 9001<br/>(React Dashboard Web Clients)"]
     end
 
-    ESP -->|"home1/real/+/telemetry"| M1
     VH -->|"home1/virtual/+/telemetry"| M1
 
     subgraph T1["Tier 1: Deterministic Protection Brain"]
@@ -509,7 +506,7 @@ flowchart TD
 ```
 
 ## 4.3 Module Description
-- **Tier 0 (Physical & Simulated Edge):** Bridges physical ESP32 sensing with object-oriented virtual loads (`Fan`, `AC`, `Washer`, `Solar`) in `virtual_house.py`.
+- **Tier 0 (HIL Dynamic Microgrid Simulator):** Implemented in `virtual_house.py`. Bridges dynamic theoretical electrical physics into continuous JSON telemetry packets for four appliances (`fan`, `ac`, `washer`, `solar`).
 - **Tier 1 (Deterministic Protection Brain):** Operates in `backend.py` as an independent supervisor, evaluating safety limits in sub-50ms and dispatching Twilio voice calls.
 - **Tier 2 (Edge ML & Anomaly Detection):** Executes $k$-NN NILM appliance disaggregation and `IsolationForest` anomaly scoring in `ml_backend.py`.
 - **Tier 3 (Predictive Trend Forecaster):** Fits rolling horizon polynomial trend lines in `ai_forecast.py` to project load $20\text{ seconds}$ forward and calculate time-to-overload ($\text{ETA}$).
@@ -616,7 +613,7 @@ flowchart TD
 GridMind optimizes for real-time edge processing by employing a structured, lightweight multi-model storage paradigm:
 
 ### 4.5.1 Telemetry Time-Series Dataset (`telemetry_log.csv`)
-All raw telemetry ingested across physical and virtual edge nodes is continuously logged by `backend.py` to `telemetry_log.csv` using standard append-mode CSV writes:
+All raw telemetry ingested across the microgrid is continuously logged by `backend.py` to `telemetry_log.csv` using standard append-mode CSV writes:
 ```csv
 ts,node,load,v,i,p,state
 171200.0,virtual,fan,230.1,0.309,71.2,1
@@ -625,7 +622,7 @@ ts,node,load,v,i,p,state
 171200.0,virtual,washer,230.1,8.692,2000.0,1
 ```
 - `ts` (float): Epoch timestamp in seconds.
-- `node` (string): Node origin (`real` or `virtual`).
+- `node` (string): Node origin (`virtual`).
 - `load` (string): Appliance identifier (`fan`, `ac`, `washer`, `solar`).
 - `v` (float): Instantaneous RMS voltage in Volts.
 - `i` (float): Instantaneous RMS current in Amperes.
@@ -639,40 +636,31 @@ ts,node,load,v,i,p,state
 
 ## 4.6 Algorithm / Model / Technique Used
 
-### 4.6.1 Discrete AC Sampling & Root Mean Square (RMS)
-The analog signals from the ACS712 current sensor and ZMPT101B potential transformer are sampled at discrete intervals $T_s = 1/f_s$ ($f_s = 1000\text{ Hz}$) over $N = 20$ discrete samples per $50\text{ Hz}$ AC fundamental cycle:
+### 4.6.1 Dynamic Power, Current, and Ohm's Law Relationships
+In the Hardware-in-the-Loop simulation engine (`virtual_house.py`), instantaneous current $I(t)$ is dynamically computed from active power $P(t)$ and prevailing bus voltage $V(t)$:
 
-$$V_{RMS} = \sqrt{\frac{1}{N} \sum_{k=1}^N v[k]^2}, \quad I_{RMS} = \sqrt{\frac{1}{N} \sum_{k=1}^N i[k]^2}$$
+$$I(t) = \frac{|P(t)|}{V(t)}$$
 
-Active real power $P$ (Watts), apparent power $S$ (Volt-Amperes), reactive power $Q$ (VAR), and power factor $PF$ are determined via discrete integration:
+where grid voltage exhibits stochastic physical variation:
 
-$$P = \frac{1}{N} \sum_{k=1}^N v[k] \cdot i[k], \quad S = V_{RMS} \cdot I_{RMS}, \quad Q = \sqrt{S^2 - P^2}, \quad PF = \cos\phi = \frac{P}{S}$$
+$$V(t) = V_{grid} + \epsilon_V(t), \quad \epsilon_V(t) \sim \mathcal{U}(-1.5, 1.5)\text{ V}$$
 
-### 4.6.2 Sensor Calibration Equations
-For the ACS712-30A Hall-effect current transducer with sensitivity $S_I = 66\text{ mV/A}$ and zero-current quiescent voltage $V_{cc}/2 = 2.50\text{ V}$:
-
-$$I(t) = \frac{V_{ADC}(t) \cdot \left(\frac{3.3\text{ V}}{4095}\right) - 2.50\text{ V}}{0.066\text{ V/A}}$$
-
-For the ZMPT101B potential transformer with operational amplifier gain trimming factor $K_V$:
-
-$$V(t) = K_V \cdot \left[ V_{ADC}(t) - V_{midpoint} \right]$$
-
-### 4.6.3 Parabolic Rooftop Solar PV Generation Model
+### 4.6.2 Parabolic Rooftop Solar PV Generation Model
 In `virtual_house.py`, rooftop solar generation ($P < 0$) is modeled using a squared sinusoidal daylight function bounded between sunrise $t_{rise}=6.0$ and sunset $t_{set}=18.0$ hours:
 
 $$P_{solar}(t) = \begin{cases}
-- \left[ P_{peak} \cdot \sin^2\left(\frac{\pi (t - 6.0)}{12.0}\right) \cdot \eta_{cloud}(t) + \epsilon(t) \right] & \text{if } 6.0 \le t \le 18.0 \\
+- \left[ P_{peak} \cdot \sin^2\left(\frac{\pi (t - 6.0)}{12.0}\right) \cdot \eta_{cloud}(t) + \epsilon_S(t) \right] & \text{if } 6.0 \le t \le 18.0 \\
 0.0 & \text{otherwise}
 \end{cases}$$
 
-where $P_{peak} = 1200.0\text{ W}$, $\epsilon(t) \sim \mathcal{U}(-15, 15)\text{ W}$ models inverter ripple, and $\eta_{cloud}(t)$ represents stochastic cloud attenuation:
+where $P_{peak} = 1200.0\text{ W}$, $\epsilon_S(t) \sim \mathcal{U}(-15, 15)\text{ W}$ models inverter conversion ripple, and $\eta_{cloud}(t)$ represents stochastic cloud attenuation:
 
 $$\eta_{cloud}(t) = \begin{cases}
 \mathcal{U}(0.3, 0.6) & \text{if cloud event active (duration } \tau \sim \mathcal{U}(4, 10)\text{ s, } p = 0.01\text{)} \\
 1.0 & \text{clear sky baseline}
 \end{cases}$$
 
-### 4.6.4 Multi-Phase Non-Linear Washing Machine Cycle
+### 4.6.3 Multi-Phase Non-Linear Washing Machine Cycle
 The washing machine operational profile is parameterized by elapsed simulation time $\tau = t_{sim} - t_{start}$:
 
 $$P_{washer}(\tau) = \begin{cases}
@@ -683,7 +671,22 @@ $$P_{washer}(\tau) = \begin{cases}
 0.0\text{ W} & \tau \ge 30\text{ min} \quad \text{[Cycle Terminated]}
 \end{cases}$$
 
-### 4.6.5 Schmitt-Trigger Overvoltage Hysteresis Formulation
+### 4.6.4 Fan Motor Bearing Friction Degradation Fault Model
+The ceiling fan operates at a baseline draw of $70\text{ W} \pm 3\text{ W}$. When a fault is triggered via `home1/real/fault/inject`, bearing friction degradation is modeled as a continuous linear power ramp:
+
+$$P_{fan}(t) = 70 + \mathcal{U}(-3, 3) + \min\left(180.0, \, (t - t_{fault}) \times 9.0\text{ W/s}\right)$$
+
+This yields a realistic 20-second degradation progression from $70\text{ W}$ to $250\text{ W}$, providing clear data for early anomaly detection and overload tripping.
+
+### 4.6.5 AC Compressor Thermodynamic Cycling Model
+The air conditioner models a thermal hysteresis compressor loop with an 8-minute cooling run followed by a 4-minute idle period:
+
+$$P_{AC}(t) = \begin{cases}
+1500 + \mathcal{U}(-40, 40)\text{ W} & \text{if } (t \pmod{12}) < 8\text{ min [Compressor Active]} \\
+90.0\text{ W} & \text{if } (t \pmod{12}) \ge 8\text{ min [Standby Fan / Idle]}
+\end{cases}$$
+
+### 4.6.6 Schmitt-Trigger Overvoltage Hysteresis Formulation
 To prevent contact destruction from relay chatter when grid voltage hovers near nominal safety limits, `backend.py` evaluates an asynchronous hysteresis state machine with a $10.0\text{ V}$ deadband:
 
 $$S_{t} = \begin{cases}
@@ -692,7 +695,7 @@ $$S_{t} = \begin{cases}
 S_{t-1} & \text{if } 240.0\text{ V} < V_{grid} < 250.0\text{ V}
 \end{cases}$$
 
-### 4.6.6 NILM K-Nearest Neighbors ($k=3$) Formulation
+### 4.6.7 Single-Mains NILM K-Nearest Neighbors ($k=3$) Formulation
 When an appliance toggles, an event vector $\mathbf{x} = [|\Delta P|, PF, I_{ratio}]^T$ is extracted. The distance to training exemplar $\mathbf{x}_i$ is defined under normalized Euclidean space:
 
 $$d(\mathbf{x}, \mathbf{x}_i) = \sqrt{ \sum_{m=1}^3 \left(\frac{x_m - x_{i,m}}{\sigma_m}\right)^2 }$$
@@ -705,7 +708,7 @@ Confidence is computed inversely proportional to the mean neighbor distance:
 
 $$\text{Confidence}(\mathbf{x}) = \max\left(0, \min\left(100, 100 - \frac{1}{3}\sum_{i \in \mathcal{N}_3(\mathbf{x})} \frac{d(\mathbf{x}, \mathbf{x}_i)}{10.0}\right)\right)$$
 
-### 4.6.7 Unsupervised Isolation Forest Anomaly Detection
+### 4.6.8 Unsupervised Isolation Forest Anomaly Detection
 The Isolation Forest constructs an ensemble of $T = 100$ isolation trees $h_t(x)$ over aggregate power observations. The anomaly score $s(x, n)$ for an observation $x$ relative to $n$ training instances is:
 
 $$s(x, n) = 2^{ - \frac{\mathbb{E}(h(x))}{c(n)} }$$
@@ -716,7 +719,7 @@ $$c(n) = 2\left(\ln(n - 1) + 0.5772156649\right) - \frac{2(n - 1)}{n}$$
 
 When $s(x, n) > 0.60$ (corresponding to decision score $< 0$ under contamination parameter $0.03$), the system flags a state anomaly.
 
-### 4.6.8 Rolling Horizon Polynomial Trend Regression & Overload ETA
+### 4.6.9 Rolling Horizon Polynomial Trend Regression & Overload ETA
 In `ai_forecast.py`, the recent sequence of $W = 15$ power samples $\{(t_j, P_j)\}_{j=1}^W$ is fitted to a first-order polynomial:
 
 $$P(t) = \alpha t + \beta$$
@@ -733,7 +736,7 @@ If $\alpha > 1.0\text{ W/s}$ and $P_{now} < P_{safety}$ ($2000\text{ W}$), the e
 
 $$\text{ETA} = \frac{P_{safety} - P_{now}}{\alpha}$$
 
-### 4.6.9 Autoregressive Lag-3 Model
+### 4.6.10 Autoregressive Lag-3 Model
 The offline time-series model in `ai_forecast.py` solves an autoregressive formulation over three discrete time lags:
 
 $$\hat{P}_t = w_1 P_{t-1} + w_2 P_{t-2} + w_3 P_{t-3} + c_0$$
@@ -742,7 +745,7 @@ The weight vector $\mathbf{w} = [w_1, w_2, w_3, c_0]^T$ is solved via singular v
 
 $$\mathbf{w} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
 
-### 4.6.10 Forecasting Evaluation Metrics
+### 4.6.11 Forecasting Evaluation Metrics
 Predictive accuracy is quantitatively scored using Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and Mean Absolute Percentage Error (MAPE):
 
 $$\text{MAE} = \frac{1}{M}\sum_{k=1}^M |P_{actual}[k] - P_{pred}[k]|$$
@@ -751,7 +754,7 @@ $$\text{RMSE} = \sqrt{\frac{1}{M}\sum_{k=1}^M (P_{actual}[k] - P_{pred}[k])^2}$$
 
 $$\text{MAPE} = \frac{100\%}{M}\sum_{k=1}^M \left|\frac{P_{actual}[k] - P_{pred}[k]}{P_{actual}[k]}\right|$$
 
-### 4.6.11 Karnataka BESCOM Domestic Tariff & Solar Financial Model
+### 4.6.12 Karnataka BESCOM Domestic Tariff & Solar Financial Model
 Financial accumulation in `RupeeInsights.js` integrates power over discrete sampling intervals $\Delta t$:
 
 $$E_{load}(t) = \int_{0}^t \frac{P_{load}(\tau)}{1000} d\tau \approx \sum_{k} \frac{P_{load}[k] \cdot \Delta t_k}{3.6 \times 10^6} \quad (\text{kWh})$$
@@ -780,7 +783,7 @@ The GridMind platform was implemented and verified across a unified engineering 
 - **Core Python Packages:** `paho-mqtt` 2.1.0, `scikit-learn` 1.4.1, `numpy` 1.26.4, `twilio` 9.10.0, `flask` 3.0.2, `flask-cors` 4.0.0, `requests` 2.31.0, `python-dotenv` 1.0.1.
 - **Node.js & Frontend Tooling:** Node.js v20.11.0, npm 10.2.4, React 18.2.0, Tailwind CSS 3.4.1, Recharts 2.12.0, Lucide-React.
 - **MQTT Broker:** Eclipse Mosquitto v2.0.18 running dual listeners (TCP 1883 and WebSocket 9001).
-- **Embedded Toolchain:** Arduino IDE 2.3.2 with ESP32 Board Package v2.0.14 for Tensilica Xtensa architecture.
+- **AI Acceleration Engine:** Groq Cloud LPUs delivering Llama-3.1-8B-Instant inference at $>500\text{ tokens/s}$.
 
 ## 5.2 Implementation Details
 The codebase is structured modularly within `d:\smartgrid`:
@@ -795,11 +798,11 @@ The codebase is structured modularly within `d:\smartgrid`:
 
 ## 5.3 Module-wise Implementation
 
-### 5.3.1 Tier 0: Physical Hardware & HIL Simulator (`virtual_house.py`)
+### 5.3.1 Tier 0: Hardware-in-the-Loop Dynamic Microgrid Simulator (`virtual_house.py`)
 `virtual_house.py` operates as an independent daemon that bridges theoretical simulation with physical hardware telemetry:
-- **Ceiling Fan Model (`Fan`):** Models a continuous $70\text{ W}$ inductive load. Upon receiving an injected fault via `home1/real/fault/inject` (triggered by a physical button press on the ESP32), it initiates a motor bearing failure simulation where power draw creeps upward by $+9\text{ W/s}$ up to an extra $+180\text{ W}$, providing a realistic degrading fault profile for anomaly detection.
+- **Ceiling Fan Model (`Fan`):** Models a continuous $70\text{ W}$ inductive load. Upon receiving an injected fault via `home1/real/fault/inject` (triggered by dashboard or test harnesses), it initiates a motor bearing failure simulation where power draw creeps upward by $+9\text{ W/s}$ up to an extra $+180\text{ W}$, providing a realistic degrading fault profile for anomaly detection.
 - **Air Conditioner Model (`AC`):** Implements a thermodynamic compressor cycle running $1500\text{ W}$ for 8 simulation-minutes followed by $90\text{ W}$ idle for 4 simulation-minutes.
-- **Washing Machine Model (`Washer`):** Implements the 4-phase, 30-minute program detailed in Section 4.6.4.
+- **Washing Machine Model (`Washer`):** Implements the 4-phase, 30-minute program detailed in Section 4.6.3.
 - **Solar Photovoltaic Inverter (`Solar`):** Generates active negative power adhering to the parabolic solar equation with stochastic cloud shading.
 
 ### 5.3.2 Tier 1: Deterministic Protection Brain (`backend.py`)
@@ -861,16 +864,17 @@ The algorithms are implemented cleanly in Python:
   p_future = float(np.polyval(poly, t_future))
   ```
 
-## 5.5 User Interface / Hardware Implementation
+## 5.5 User Interface / Cyber-Physical Console Implementation
 - **React 18 Dashboard (`smart-grid-dashboard`):** Built with React 18, Tailwind CSS, Framer Motion, and Recharts. Features an animated SVG circuit trace (`SideCircuits.js`) whose glow and speed dynamically reflect instantaneous active power, real-time load cards (`Dashboard.js`), an emergency Web Audio klaxon synthesizer, and a Karnataka BESCOM domestic financial counter (`RupeeInsights.js`).
-- **Physical Hardware Interfacing:** Built around an ESP32 microcontroller running embedded C++ (Arduino). The ACS712-30A current transducer is interfaced via a resistive voltage divider to ADC pin GPIO 34. The ZMPT101B potential transformer connects to ADC pin GPIO 35. The 4-channel relay module is triggered via GPIO pins 25, 26, 27, and 32. Real-time telemetry is streamed over Wi-Fi via MQTT to the Mosquitto broker.
+- **Streamlit Engineering Console (`dashboard_v2.py`):** Provides an interactive engineering control surface allowing operators to adjust simulated grid voltage via dynamic sliders, inject fault ramps, view raw tabular dataframes, and monitor system summary strings in real time.
+- **Web Audio Klaxon Synthesizer:** Implemented in pure Web Audio API, synthesizing an emergency dual-tone alarm ramping dynamically between 700Hz and 1100Hz whenever critical protection flags (`OVERLOAD`, `OVERVOLT`) are emitted.
 
 ---
 
 # Chapter 6: Results and Discussion
 
 ## 6.1 Experimental Setup / Test Cases
-Verification was conducted within a Hardware-in-the-Loop testbench environment combining the physical ESP32 edge node with `virtual_house.py` multi-appliance emulation. The complete system was evaluated across nine rigorous test scenarios (TC-01 through TC-09):
+Verification was conducted within the active Hardware-in-the-Loop testbench environment combining the multi-appliance emulation engine (`virtual_house.py`), the core protection daemon (`backend.py`), the edge ML engine (`ml_backend.py`), the predictive forecaster (`ai_forecast.py`), the Groq LLM agents (`ai_agent.py`, `ai_brain.py`), and the React 18 dashboard. The complete system was evaluated across nine rigorous test scenarios (TC-01 through TC-09):
 
 ### Table 6.1: Master Experimental Test Results Table (TC-01 through TC-09)
 | Test ID | Test Scenario | Input Stimulus / Injected Condition | Expected System Behavior | Observed Experimental Outcome | Status |
@@ -990,7 +994,7 @@ The overall classification accuracy achieved was **$96.8\%$**, demonstrating tha
 Compared to conventional electromechanical switchboards, GridMind introduces four revolutionary capabilities:
 1. **Sub-50ms Selective Tripping vs. Coarse Branch Cutoff:** While MCBs cut power to entire rooms, GridMind isolates only the malfunctioning appliance (e.g., cutting the fan while leaving lighting and AC operational).
 2. **Proactive Trend Preemption vs. Thermal Delay:** While thermal breakers require bimetallic strip heating (often taking up to $60\text{ seconds}$), GridMind anticipates overloads $18.4\text{ seconds}$ before limits are breached.
-3. **Single-Point NILM vs. Expensive Smart Plugs:** GridMind achieves $96.8\%$ appliance identification accuracy using a single centralized sensor node, saving \$400–\$700 in residential sub-metering hardware.
+3. **Single-Point NILM vs. Expensive Smart Plugs:** GridMind achieves $96.8\%$ appliance identification accuracy using a single centralized sensing stream, saving \$400–\$700 in residential sub-metering hardware.
 4. **Urgent Voice Telephony vs. Silent Push Notifications:** Twilio voice calls guarantee that critical warnings are audibly communicated to homeowners within seconds.
 
 ## 6.5 Discussion
@@ -1010,14 +1014,15 @@ The GridMind project successfully conceptualizes, implements, and validates a un
 6. **Production-Ready Cyber-Physical UI:** Delivering a high-framerate, aesthetically compelling dashboard that synthesizes live telemetry, dynamic SVG power flow, and financial calculations.
 
 ## 7.2 Limitations
-1. **Single-Phase Prototype Scope:** The current hardware prototype and simulation model operate across single-phase $230\text{ V}$ AC circuits. Industrial three-phase balance arbitration remains unaddressed.
+1. **Single-Phase Prototype Scope:** The current simulation model operates across single-phase $230\text{ V}$ AC circuits. Industrial three-phase balance arbitration remains unaddressed.
 2. **Cloud API Dependency for LLM Reasoning:** While physical protection is entirely local and self-contained, Tier 4 conversational explanations and autonomous agent reasoning currently depend on external internet connectivity to reach Groq Cloud endpoints.
 3. **Local Network Security Model:** The prototype operates over anonymous MQTT on a trusted local area network; production deployment requires TLS certificate encryption and role-based access control.
 
 ## 7.3 Future Scope
 1. **Quantized On-Device Edge LLM Deployment:** Compressing small language models (e.g., Llama-3.2-1B-Instruct or Qwen-2.5-1.5B) to 4-bit GGUF quantization using `llama.cpp` deployed directly on an onboard Raspberry Pi 5 or NVIDIA Jetson Orin Nano, achieving complete air-gapped autonomy.
-2. **Battery Energy Storage (BESS) & Vehicle-to-Home (V2H) Integration:** Expanding the simulator and dispatch agent to manage bidirectional battery charging, arbitrage time-of-day tariffs, and utilize EV battery reserves during grid outages.
-3. **Transactive Microgrid Peer-to-Peer (P2P) Trading:** Implementing an Ethereum or Solana smart-contract settlement layer enabling neighboring residences to autonomously buy and sell excess rooftop solar energy over local microgrid feeders.
+2. **Physical Edge Node Microcontroller Integration:** Flashing dedicated ESP32 firmware interfaced with physical current (ACS712) and voltage (ZMPT101B) sensors, utilizing the existing `home1/real/+/telemetry` MQTT topic taxonomy without modifying backend protection daemons.
+3. **Battery Energy Storage (BESS) & Vehicle-to-Home (V2H) Integration:** Expanding the simulator and dispatch agent to manage bidirectional battery charging, arbitrage time-of-day tariffs, and utilize EV battery reserves during grid outages.
+4. **Transactive Microgrid Peer-to-Peer (P2P) Trading:** Implementing an Ethereum or Solana smart-contract settlement layer enabling neighboring residences to autonomously buy and sell excess rooftop solar energy over local microgrid feeders.
 
 ---
 
@@ -1131,10 +1136,10 @@ class NILMClassifier:
 Throughout this report and physical demonstrations, visual evidence is registered at the following designated placeholders:
 
 1. `[Insert Screenshot: Terminal execution of virtual_house.py showing real-time load telemetry and solar generation]`
-2. `[Insert Screenshot: Physical Hardware Prototype Setup showing ESP32, ACS712, ZMPT101B, Relays, and LCD]`
+2. `[Insert Screenshot: Terminal execution of backend.py showing sub-50ms protection loop and Twilio dispatch]`
 3. `[Insert Screenshot: Twilio Emergency Voice Call ringing on operator mobile device with caller ID +16318007291]`
-4. `[Insert Screenshot: Streamlit Engineering Console showing real-time voltage slider and fault injection controls]`
-5. `[Insert Screenshot: Full React Cyber-Physical Dashboard showing live telemetry, SVG circuits, and financial insights]`
+4. `[Insert Screenshot: Streamlit Engineering Console (dashboard_v2.py) showing real-time voltage slider and fault injection controls]`
+5. `[Insert Screenshot: Full React Cyber-Physical Dashboard (smart-grid-dashboard) showing live telemetry, SVG circuits, and financial insights]`
 6. `[Insert Screenshot: React Dashboard during Voltage Swell and Priority Load Shedding State]`
 7. `[Insert Screenshot: NILM Appliance Event Disaggregation Panel in React Dashboard showing detected appliance and confidence]`
 8. `[Insert Screenshot: Terminal execution of ai_forecast.py showing model training, test MAE, and live forecasting]`
@@ -1180,9 +1185,3 @@ This provides advance notice $\sim 18.4\text{ seconds}$ before physical threshol
 
 #### Q7: What is Hardware-in-the-Loop (HIL) simulation and why is it used here?
 **Answer:** Hardware-in-the-Loop simulation is an industry-standard methodology (used by NASA, Tesla, and power utilities) where physical hardware controllers interact with high-fidelity mathematical software models of physical systems in real time. In a university laboratory, running four simultaneous heavy appliances (a 2000W washer, a 1500W air conditioner, and rooftop solar arrays) exceeds lab electrical capacity and safety budgets. HIL simulation allows the ESP32 and protection backend to process authentic electrical dynamics safely without risk of equipment damage.
-
-### D.2 Hardware Component Datasheets Summary
-- **ESP32-WROOM-32D:** 3.3V Logic, Dual Tensilica Xtensa LX6 @ 240MHz, 12-bit ADC (0–4095), Integrated 802.11b/g/n Wi-Fi & BLE.
-- **Allegro ACS712-30A:** Supply Voltage: 4.5–5.5V DC, Output: $66\text{ mV/A}$, Galvanic Isolation: 2.1 kV RMS, Bandwidth: 80 kHz.
-- **ZMPT101B Active Transformer:** Rated Input Current: 2 mA, Rated Output Current: 2 mA, Linearity Range: 0–1000V AC, Dielectric Strength: 4000V.
-- **Songle SRD-05VDC-SL-C Relay:** Coil Voltage: 5V DC, Contact Rating: 10A @ 250V AC / 10A @ 30V DC, Mechanical Life: $1 \times 10^7$ operations.
